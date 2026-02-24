@@ -71,6 +71,51 @@ Response:
   "next_level_requirement": 1117.0
 }
 ```
+
+## How to REQUEST STREAK data
+### Uses API POST
+User's daily streak is updated with required information
+
+| Field   | required | Description |
+|---------|----------| ------------|
+| user_id |    yes   | ID of user  |
+| event_type| no      | task_completed increases streak; other values reset streak |
+
+Example:
+```
+response = requests.post("http://localhost:3000/api/streak/update", json={
+    "user_id": 7,
+    "event_type": "task_completed"
+})
+```
+
+Response:
+```
+{
+  "status": "success",
+  "user_id": 7,
+  "current_streak": 1,
+  "last_activity": "2026-02-23"
+}
+```
+
+## How to RECEIVE STREAK data
+### Uses API GET
+Retrieve user's current streak:
+```
+response = requests.get("http://localhost:3000/api/streak/<user_id>")
+```
+
+Response:
+```
+{
+  "status": "success",
+  "user_id": 7,
+  "current_streak": 1,
+  "last_activity": "2026-02-23"
+}
+```
+
 ## GET Health
 Health check returns {"status": "ok"}
 >>>>>>> main

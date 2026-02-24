@@ -17,3 +17,12 @@ print("POST stats:", response.json())
 # Retrieves stats that were posted
 response = requests.get(f"{BASE_URL}/api/progress/7")
 print("GET Stats:", response.json())
+
+response = requests.post(f"{BASE_URL}/api/streak/update", json={
+    "user_id": 7,
+    "event_type": "task_completed"
+})
+print("POST Streak:", response.json())
+
+response = requests.get(f"{BASE_URL}/api/streak/7")
+print("GET Streak:", response.json())

@@ -1,7 +1,9 @@
 import logging
+from datetime import date
 from flask import Flask, request, jsonify
 
 from progression.levels import user_level, next_level_requirements
+from progression.streak import calculate_streak
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -9,6 +11,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 users = {}
+user_streaks = {}
 
 # ===========================
 #           POST
@@ -76,6 +79,56 @@ def update_progress():
         logger.error(f"Error calculating level for user {user_id}")
         return jsonify({"error": "Internal server error"}), 500
 
+
+@app.route("/api/streak/update", methods=["POST"])
+def update_streak():
+    try:
+        data = request.get_json(force=True, silent=True)
+        if data is None:
+            return jsonify({"error": "Missing JSON"}), 400
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    user_id = data.get("user_id")
+    event_type = data.get("event_type", "task_completed")
+
+    if not user_id:
+        return jsonify({"error": "user_id required"}), 400
+
+    user_id = str(user_id)
+
+    if user_id not in user_streaks:
+        user_streaks[user_id] = {
+            "current_streak": 0,
+            "last_activity": None
+        }
+
+    current_streak = user_streaks[user_id]["current_streak"]
+    last_activity = user_streaks[user_id]["last_activity"]
+
+    if event_type == "task_completed":
+        new_streak, activity_date = calculate_streak(current_streak, last_activity)
+    else:
+        new_streak, activity_date = 0, date.today().isoformat()
+
+    user_streaks[user_id] = {
+        "current_streak": new_streak,
+        "last_activity": activity_date
+    }
+
+    try:
+        valid_user_id = int(user_id)
+    except ValueError:
+        valid_user_id = user_id
+
+    result = {
+        "status": "success",
+        "user_id": valid_user_id,
+        "current_streak": user_streaks[user_id]["current_streak"],
+        "last_activity": user_streaks[user_id]["last_activity"]
+    }
+    return jsonify(result), 200
+
 # ============================
 #           GET
 # ============================
@@ -121,6 +174,31 @@ def get_progress(user_id):
     except Exception:
         logger.error(f"Error retrieving progress for {user_id}")
         return jsonify({"error": "Internal server error"}), 500
+
+
+@app.route("/api/streak/<user_id>", methods=["GET"])
+def get_streak(user_id):
+    if not user_id:
+        return jsonify({"error": "user_id is required"}), 400
+
+    user_id = str(user_id)
+
+    streak_data = user_streaks.get(user_id)
+    if streak_data is None:
+        return jsonify({"error": "user not found"}), 404
+
+    try:
+        valid_user_id = int(user_id)
+    except ValueError:
+        valid_user_id = user_id
+
+    result = {
+        "status": "success",
+        "user_id": valid_user_id,
+        "current_streak": streak_data["current_streak"],
+        "last_activity": streak_data["last_activity"]
+    }
+    return jsonify(result), 200
 
 # ===============================
 #            HEALTH

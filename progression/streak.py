@@ -1,22 +1,18 @@
 from datetime import date
 
-def calculate_streak(current_streak, last_activity, event_type):
+def calculate_streak(current_streak, last_activity):
     today = date.today().isoformat()
-    
-    if last_activity == None:
+
+    if last_activity is None:
         return 1, today
 
     days_inactive = (date.fromisoformat(today) - date.fromisoformat(last_activity)).days
 
-    # User already logged in
     if days_inactive == 0:
-        new_streak = current_streak
-    # User active again 
-    elif days_inactive == 1:
-        new_streak = current_streak + 1
-    # User inactive
-    else:
-        new_streak = 0
+        return current_streak, today
 
-    return new_streak, today
+    elif days_inactive == 1:
+        return current_streak + 1, today
+
+    return 0, today
 
