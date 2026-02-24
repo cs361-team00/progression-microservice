@@ -1,6 +1,10 @@
 # progression-microservice
 Progression microservice for tracking user points and level progress (User Story 1: Track User Progress). Levels scale using a 1.75x multiplier — level 1 requires 100 points, each subsequent level costs 1.75x more than the previous.
 
+Returns overall statistics (User story 2: Overall Statistics), currently return the same information as progression, but will return more indepth information as more stats get added such as achievements.
+
+Tracks streak of user based on user activity (User story - 3) either updates user streak by 1, or resets to 0. Checks time of day based on when user last logged in to verify it's a new day for the user.
+
 
 ## Start the server:
 Run program in terminal
@@ -24,7 +28,7 @@ python test_progression.py
 
 
 
-## How to REQUEST DATA
+## How to REQUEST data (User Story - 1)
 ### Uses API POST
 User's points and level are updated with the required information
 
@@ -55,11 +59,12 @@ Response:
 }
 ```
 
-## How to RECEIVE data
+## How to RECEIVE data for PROGRESS (User Story - 1)
 ### Uses API GET
 Retrieve user's progress:
 ```
 response = requests.get("http://localhost:3000/api/progress/<user_id>")
+print("GET Progress:", response.json())
 ```
 Response:
 ```
@@ -72,7 +77,24 @@ Response:
 }
 ```
 
-## How to REQUEST STREAK data
+## Receiving data for STATISTICS (User story - 2)
+Example
+```
+response = requests.get(f"{BASE_URL}/api/stats/7")
+print("GET Stats: ", response.json())
+```
+Current response
+```
+{
+  "status": "success",
+  "user_id": 7,
+  "current_level": 3,
+  "total_points": 750.0,
+  "next_level_requirement": 1117.0
+}
+```
+
+## How to REQUEST STREAK data (User story - 3)
 ### Uses API POST
 User's daily streak is updated with required information
 
@@ -99,7 +121,7 @@ Response:
 }
 ```
 
-## How to RECEIVE STREAK data
+## How to RECEIVE STREAK data (User Story - 3)
 ### Uses API GET
 Retrieve user's current streak:
 ```
@@ -115,7 +137,10 @@ Response:
   "last_activity": "2026-02-23"
 }
 ```
-
 ## GET Health
 Health check returns {"status": "ok"}
->>>>>>> main
+
+# UML Diagram
+![UML_1](UML_1.png)
+![UML_2](UML_2.png)
+![UML_3](UML_3.png)

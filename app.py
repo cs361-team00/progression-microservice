@@ -79,7 +79,6 @@ def update_progress():
         logger.error(f"Error calculating level for user {user_id}")
         return jsonify({"error": "Internal server error"}), 500
 
-
 @app.route("/api/streak/update", methods=["POST"])
 def update_streak():
     try:
@@ -175,6 +174,51 @@ def get_progress(user_id):
         logger.error(f"Error retrieving progress for {user_id}")
         return jsonify({"error": "Internal server error"}), 500
 
+@app.route("/api/stats/<user_id>", methods=["GET"])
+def get_stats(user_id):
+    """
+    Returns OVERALL indepth statistics of user.
+    Currently retrieves the same info as get_progress until further sprints 
+    such as achievements are added
+    """
+    user_id = str(user_id)
+
+    if user_id not in users:
+        return jsonify({"error": "User not found"}), 404
+    
+    total_points = users[user_id]
+    
+    try:
+        current_level = user_level(total_points)
+        next_level_info = next_level_requirements(total_points)
+        try:
+            valid_user_id = int(user_id)
+        except ValueError:
+            valid_user_id = user_id
+
+        if isinstance(next_level_info, dict):
+            points_to_next = next_level_info.get("next_level_points", 0)
+        else:
+            points_to_next = next_level_info - total_points
+
+        # Add future stats
+        result = {
+                "status": "success",
+                "user_id": valid_user_id,
+                "current_level": current_level,
+                "total_points": total_points,
+                "next_level_requirement": total_points + points_to_next
+                }
+        return jsonify(result), 200
+    
+    except Exception:
+        logger.error(f"Error retrieving progress for {user_id}")
+        return jsonify({"error": "Internal server error"}), 500
+
+@app.route("/api/progress/<user_id>", methods=["GET"])
+def get_progress(user_id):
+        return jsonify({"error": "Internal server error"}), 500
+
 
 @app.route("/api/streak/<user_id>", methods=["GET"])
 def get_streak(user_id):
@@ -199,7 +243,6 @@ def get_streak(user_id):
         "last_activity": streak_data["last_activity"]
     }
     return jsonify(result), 200
-
 # ===============================
 #            HEALTH
 # ===============================
