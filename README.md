@@ -144,5 +144,3 @@ Health check returns {"status": "ok"}
 ![UML_1](UML_1.png)
 ![UML_2](UML_2.png)
 ![UML_3](UML_3.png)
-
-
