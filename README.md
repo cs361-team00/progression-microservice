@@ -3,6 +3,8 @@ Progression microservice for tracking user points and level progress (User Story
 
 Returns overall statistics (User story 2: Overall Statistics), currently return the same information as progression, but will return more indepth information as more stats get added such as achievements.
 
+Tracks streak of user based on user activity (User story - 3) either updates user streak by 1, or resets to 0. Checks time of day based on when user last logged in to verify it's a new day for the user.
+
 
 ## Start the server:
 Run program in terminal
@@ -26,7 +28,7 @@ python test_progression.py
 
 
 
-## How to REQUEST data
+## How to REQUEST data (User Story - 1)
 ### Uses API POST
 User's points and level are updated with the required information
 
@@ -57,7 +59,7 @@ Response:
 }
 ```
 
-## How to RECEIVE data
+## How to RECEIVE data for PROGRESS (User Story - 1)
 ### Uses API GET
 Retrieve user's progress:
 ```
@@ -75,7 +77,7 @@ Response:
 }
 ```
 
-## Receiving data for stats (User story - 2)
+## Receiving data for STATISTICS (User story - 2)
 Example
 ```
 response = requests.get(f"{BASE_URL}/api/stats/7")
@@ -91,5 +93,56 @@ Current response
   "next_level_requirement": 1117.0
 }
 ```
+
+## How to REQUEST STREAK data (User story - 3)
+### Uses API POST
+User's daily streak is updated with required information
+
+| Field   | required | Description |
+|---------|----------| ------------|
+| user_id |    yes   | ID of user  |
+| event_type| no      | task_completed increases streak; other values reset streak |
+
+Example:
+```
+response = requests.post("http://localhost:3000/api/streak/update", json={
+    "user_id": 7,
+    "event_type": "task_completed"
+})
+```
+
+Response:
+```
+{
+  "status": "success",
+  "user_id": 7,
+  "current_streak": 1,
+  "last_activity": "2026-02-23"
+}
+```
+
+## How to RECEIVE STREAK data (User Story - 3)
+### Uses API GET
+Retrieve user's current streak:
+```
+response = requests.get("http://localhost:3000/api/streak/<user_id>")
+```
+
+Response:
+```
+{
+  "status": "success",
+  "user_id": 7,
+  "current_streak": 1,
+  "last_activity": "2026-02-23"
+}
+```
 ## GET Health
 Health check returns {"status": "ok"}
+
+# UML Diagram
+![UML_1](UML_1.png)
+![UML_2](UML_2.png)
+![UML_3](UML_3.png)
+
+
