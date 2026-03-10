@@ -215,11 +215,6 @@ def get_stats(user_id):
         logger.error(f"Error retrieving progress for {user_id}")
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route("/api/progress/<user_id>", methods=["GET"])
-def get_progress(user_id):
-        return jsonify({"error": "Internal server error"}), 500
-
-
 @app.route("/api/streak/<user_id>", methods=["GET"])
 def get_streak(user_id):
     if not user_id:
